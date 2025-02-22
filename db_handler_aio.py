@@ -45,6 +45,7 @@ async def create_db_and_table():
         
         # Commit the changes
         await db.commit()
+        print("Database and table created successfully")
 
     return True
 
