@@ -1,0 +1,21 @@
+
+{
+    "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    "name": "USDT",
+    "symbol": "USDT",
+    "decimals": 6,
+    "logoURI": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.svg",
+    "tags": ["verified", "community", "strict"],
+    "daily_volume": 346075573.25940377,
+    "created_at": "2024-04-26T10:56:58.893768Z",
+    "freeze_authority": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi",
+    "mint_authority": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi",
+    "permanent_delegate": None,
+    "minted_at": None,
+    "extensions": {
+        "coingeckoId": "tether"
+        },
+    "price": "0.999995"
+
+
+}

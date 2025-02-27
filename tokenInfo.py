@@ -7,25 +7,32 @@ class TokenInfo:
 
     @staticmethod
     async def get_token_info(token_mint_address):
+        data = {}
         """Get Token Info"""
-        headers = {
-            "accept": "application/json, text/plain, */*",
-            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "sec-ch-ua-mobile": "?0",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-        }
-        url = f"https://gmgn.ai/defi/quotation/v1/tokens/sol/{token_mint_address}"
+
+        url = f"https://api.jup.ag/tokens/v1/token/{token_mint_address}"
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
+            response = await client.get(url)
             if response.status_code == 200:
-                return response.json()["data"]["token"]
+                data = response.json() 
             else:
                 return {}
+            price_response = await client.get(f"https://api.jup.ag/price/v2?ids={token_mint_address},So11111111111111111111111111111111111111112&vs_Token=So11111111111111111111111111111111111111112")
+            if price_response.status_code == 200:
+                price_data = price_response.json()
+                price_in_usd = price_data['data'][token_mint_address]['price']
+                sol_price = price_data['data']['So11111111111111111111111111111111111111112']['price']
+                price_in_sol = float(price_in_usd) / float(sol_price)
+                
+                data['price_in_usd'] = round(float(price_in_usd), 2)
+                data['price_in_sol'] = round(float(price_in_sol), 6)
+
+                print(data, "final data after price")
+                return data
+            else:
+                return {}
+            
+
             
     @staticmethod
     def convert_price_to_string(price):

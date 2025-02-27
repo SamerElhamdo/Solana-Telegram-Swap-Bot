@@ -163,28 +163,22 @@ async def buy_token(message: Message, state: FSMContext) -> None:
     # token_mint_addresss = await swapClient.get_token_mint_account(token_address)
     account_token_info = await swapClient.get_wallet_token_balance(token_address)
     token_info = await TokenInfo.get_token_info(token_address)
+    print(token_info, "token_info")
     await state.update_data(token_info=token_info)
     await state.update_data(token_address=token_address)
     await state.update_data(account_token_info=account_token_info)
-    open_timestamp = token_info.get('open_timestamp', 0)
-    if open_timestamp:
-        open_date = datetime.fromtimestamp(open_timestamp).strftime('%Y-%m-%d')
-    else:
-        open_date = "Unknown"
+
     swapText = f"""You Currently have {account_token_info['balance']['float']} {token_info['symbol']} in your wallet.\n
         💵Token Info:
         |---Symbol: {token_info['symbol']}
         |---Name: {token_info['name']}
-        |---Price: {TokenInfo.convert_price_to_string(token_info['price'])}
+        |---Price in USD: {token_info['price_in_usd']}
+        |---Price in SOL: {token_info['price_in_sol']}
         ------------------------------------
         🔍Pool Info:
-        |---24H Volume: {TokenInfo.convert_volume_to_string(token_info['volume_24h'])}
-        |---Token FDV: {TokenInfo.convert_volume_to_string(int(token_info['fdv']))}
-        |---Token Liquidity: {TokenInfo.convert_volume_to_string(int(token_info['liquidity']))}
-        |---Holder Count: {token_info['holder_count']}
+        |---24H Volume: {TokenInfo.convert_volume_to_string(token_info['daily_volume'])}
         ------------------------------------
-        |---Token MAX Supply: {TokenInfo.convert_volume_to_string(token_info['max_supply'])}
-        |---Token Open Date: {open_date}
+        |---Token Open Date: {token_info['created_at']}
         ------------------------------------
         🔗Links:
         |--- [GMGN](https://gmgn.ai/sol/token/{token_address}) | [DexScreener](https://dexscreener.com/solana/{token_address}) | [Birdeye](https://dexscreener.com/solana/{token_address}) | [Dextools](https://www.dextools.io/app/cn/ether/pair-explorer/{token_address})

@@ -29,7 +29,7 @@ def make_wallet_menu_keyboard() -> None:
     return wallet_keyboard
 
 def make_swap_menu_keyboard() -> None:
-    buy_0_25_btn = InlineKeyboardButton(text="Buy 0.05 SoL", callback_data="buy_0.05")
+    buy_0_25_btn = InlineKeyboardButton(text="Buy 0.01 SoL", callback_data="buy_0.01")
     buy_0_5_btn = InlineKeyboardButton(text="Buy 0.1 SoL", callback_data="buy_0.1")
     buy_1_0_btn = InlineKeyboardButton(text="Buy 0.5 SoL", callback_data="buy_0.5")
     buy_option_btn = InlineKeyboardButton(text="Buy _ Sol", callback_data="buy_option")
