@@ -1,6 +1,8 @@
 import json
 import base58
 import base64
+import logging
+from datetime import datetime
 from solders import message
 from solders.keypair import Keypair # type: ignore
 from solders.transaction import VersionedTransaction # type: ignore
@@ -12,14 +14,15 @@ from solders.pubkey import Pubkey # type: ignore
 from spl.token.instructions import get_associated_token_address
 from solders.pubkey import Pubkey # type: ignore
 
-
-
+# Setup logging configuration
+logger = logging.getLogger(__name__)
 
 class Wallet():
     
     def __init__(self, rpc_url: str, private_key: str):
         self.wallet = Keypair.from_bytes(base58.b58decode(private_key))
         self.client = AsyncClient(endpoint=rpc_url,commitment=Finalized)
+        self.balance_history = {}
 
 
     async def get_token_balance(self, token_mint_account: str) -> dict:
@@ -98,3 +101,49 @@ class Wallet():
             print(e)
             print("Check Transaction Status FAILED!")
             return (False,str(e))
+
+    async def track_balance_changes(self, token_mint_account: str = None):
+        """
+        Track changes in wallet balance for SOL or a specific token
+        Returns a tuple (current_balance, change_percentage, is_increase) if there was a previous balance
+        Returns just the current balance if this is the first check
+        """
+        try:
+            if token_mint_account is None or token_mint_account == self.wallet.pubkey().__str__():
+                # Track SOL balance
+                token_key = "SOL"
+                balance_data = await self.get_token_balance(self.wallet.pubkey().__str__())
+            else:
+                # Track token balance
+                token_key = token_mint_account
+                balance_data = await self.get_token_balance(token_mint_account)
+            
+            current_balance = balance_data['balance']['float']
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Store the current balance with timestamp
+            if token_key not in self.balance_history:
+                self.balance_history[token_key] = []
+            
+            self.balance_history[token_key].append({
+                "timestamp": current_time,
+                "balance": current_balance
+            })
+            
+            # Keep only last 20 records to avoid memory bloat
+            if len(self.balance_history[token_key]) > 20:
+                self.balance_history[token_key].pop(0)
+            
+            # Calculate change if we have previous data
+            if len(self.balance_history[token_key]) > 1:
+                previous_balance = self.balance_history[token_key][-2]["balance"]
+                if previous_balance > 0:
+                    change_percentage = ((current_balance - previous_balance) / previous_balance) * 100
+                    is_increase = current_balance > previous_balance
+                    return (current_balance, change_percentage, is_increase)
+            
+            return (current_balance, 0, False)
+        
+        except Exception as e:
+            logger.error(f"Error tracking balance: {e}", exc_info=True)
+            return (0, 0, False)
